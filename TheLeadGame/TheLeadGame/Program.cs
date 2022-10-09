@@ -27,26 +27,21 @@ namespace TheLeadGame
             int winner = 0;
             List<Int32> p1Scores = new List<Int32>();
             List<Int32> p2Scores = new List<Int32>();
+            Tuple<Int32, Int32> returnedWinner;
 
             foreach (String line in lines)
             {
+                if (String.IsNullOrWhiteSpace(line)) continue;
+
                 if(lr == 0)
                 {
                     scenarios++;
 
                     if(bestDif != 0)
                     {
-                        Tuple<Int32, Int32> returnedWinner = Source.WhoWon(p1Scores.ToArray(), p2Scores.ToArray());
+                        returnedWinner = Source.WhoWon(p1Scores.ToArray(), p2Scores.ToArray());
 
-                        if(returnedWinner.Item1 == winner && returnedWinner.Item2 == bestDif)
-                        {
-                            correct++;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Incorrect values returned. Expected winner to be player " + winner + " and the lead to be " + bestDif + ".");
-                            Console.WriteLine("\tInstead received player " + returnedWinner.Item1 + " as the winner and the lead was " + returnedWinner.Item2 + ".");
-                        }
+                        correct += ((IsCorrect(winner, bestDif, returnedWinner) == true) ? 1 : 0);
                     }
 
                     lr = Convert.ToInt32(line.Trim());
@@ -69,8 +64,25 @@ namespace TheLeadGame
                 }
             }
 
+            returnedWinner = Source.WhoWon(p1Scores.ToArray(), p2Scores.ToArray());
+            correct += ((IsCorrect(winner, bestDif, returnedWinner) == true) ? 1 : 0);
+
             float score = (float)Math.Round(((float)correct / scenarios) * MAX_SCORE, 2);
             Console.WriteLine("***Score: " + score + "/" + MAX_SCORE);
+        }
+
+        private static bool IsCorrect(int winner, int bestDif, Tuple<Int32, Int32> returnedWinner)
+        {
+            if (returnedWinner.Item1 == winner && returnedWinner.Item2 == bestDif)
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Incorrect values returned. Expected winner to be player " + winner + " and the lead to be " + bestDif + ".");
+                Console.WriteLine("\tInstead received player " + returnedWinner.Item1 + " as the winner and the lead was " + returnedWinner.Item2 + ".");
+                return false;
+            }
         }
     }
 }
